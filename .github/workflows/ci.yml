@@ -83,9 +83,14 @@ jobs:
           head -c 4 dist/Jonah-Escobar.pdf | grep -q '%PDF'
           echo "résumé present and is a real PDF"
 
-      - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v5
+      # Pinned, deliberately, and not to the newest majors.
+      # upload-pages-artifact v5 switched its internals to upload-artifact v7,
+      # and deploy-pages v5 cannot find artifacts written by it — the upload
+      # reports success, then the deploy sees "Found 0 artifact(s)". Verified
+      # twice on this repo. This trio is the combination that deploys.
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
-      - uses: actions/deploy-pages@v5
+      - uses: actions/deploy-pages@v4
         id: deployment

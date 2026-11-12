@@ -1,0 +1,66 @@
+/* ============================================================
+   The kinetic name.
+
+   Every per-letter value is a CSS custom property written by the
+   animation loop in KineticName.jsx. The loop never reads layout
+   and React never re-renders for a pointer move — the only cost
+   per frame is a handful of style writes.
+   ============================================================ */
+
+.kinetic {
+  display: block;
+  font-family: var(--font-display);
+  line-height: 0.88;
+  letter-spacing: -0.025em;
+  /* Fills the width at every size without a media query, and stops growing
+     past the point where two lines would stop fitting. */
+  font-size: clamp(3.25rem, 19vw, 11.5rem);
+  text-transform: uppercase;
+  /* Letters lean and scale past their box; without this they get clipped. */
+  padding: 0.06em 0.12em 0.1em 0;
+  margin-inline-start: -0.02em;
+}
+
+.kinetic__line {
+  display: block;
+  white-space: nowrap;
+}
+
+.kinetic__char {
+  display: inline-block;
+  font-variation-settings: 'opsz' 96, 'wght' var(--w, 545);
+  transform: translateY(var(--ty, 0px)) skewX(var(--sk, 0deg)) scale(var(--sc, 1));
+  transform-origin: 50% 85%;
+  /* No CSS transition here on purpose: the loop already eases toward its
+     target, and a transition on top of that would fight it and feel laggy. */
+  will-change: transform, font-variation-settings;
+}
+
+/* The surname drops to secondary grey. With colour removed this two-tone is
+   what keeps the name from reading as one undifferentiated block. */
+.kinetic__line--dim { color: var(--text-2); }
+
+/* ---- Static fallback ----
+   Touch devices and reduced-motion visitors get a fixed heavy weight. It has
+   to look deliberate on its own, not like a broken version of the animation. */
+.kinetic--static .kinetic__char {
+  font-variation-settings: 'opsz' 96, 'wght' 620;
+  transform: none;
+  will-change: auto;
+}
+
+/* ---- Konami bounce (easter egg #2) ----
+   Never runs under reduced motion: useKonami is disabled there outright. */
+.konami .kinetic:not(.kinetic--static) .kinetic__char {
+  animation: kinetic-bounce 820ms var(--ease-out) infinite;
+  animation-delay: calc(var(--i) * 55ms);
+}
+
+@keyframes kinetic-bounce {
+  0%, 100% { translate: 0 0; }
+  45% { translate: 0 -0.07em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kinetic__char { animation: none !important; }
+}

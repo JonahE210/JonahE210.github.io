@@ -1,0 +1,107 @@
+/* ---- Hero -------------------------------------------------- */
+.hero {
+  position: relative;
+  padding-block: var(--s-12) var(--s-16);
+  overflow: hidden;
+}
+
+/* A single cold wash bleeding off the right edge. At 7% it is barely a colour
+   — just enough to stop a pure-black field from reading as flat. */
+.hero::after {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -14%;
+  width: 52vw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--accent) 7%, transparent),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.hero__name { margin-block: var(--s-6) var(--s-6); }
+
+/* With no tagline under the name, this line is the only thing in the hero
+   that answers "who is this and when are they available" — the two fields a
+   screener actually copies out. It was .meta (12px tracked caps, --text-3),
+   the quietest style on the site; at that size it was decoration. */
+.hero__sub {
+  margin-top: var(--s-4);
+  max-width: 48ch;
+  font-size: var(--text-md);
+  line-height: 1.45;
+  color: var(--text-2);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-8);
+}
+
+/* ---- About ------------------------------------------------- */
+.about { display: grid; gap: var(--s-8); }
+
+/* The eyebrow above this had no space under it at all — the two sat flush.
+   More room above a heading than below it, so this is the smaller half. */
+.about__body { margin-top: var(--s-4); }
+.about__body > * + * { margin-top: var(--s-4); }
+.about__body p { color: var(--text-2); font-size: 1.0625rem; }
+/* An editorial lead: the first paragraph is the one a skimmer reads, and
+   Newsreader holds up at this size where a UI sans would just look big. */
+.about__body p:first-child {
+  color: var(--text);
+  font-size: var(--text-md);
+  line-height: 1.5;
+}
+
+.about__aside {
+  display: grid;
+  gap: var(--s-6);
+  align-content: start;
+  /* Hug the content: a card stretched to match the prose column beside it
+     would be mostly empty panel. */
+  align-self: start;
+  padding: var(--s-6);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.about__group > * + * { margin-top: var(--s-3); }
+
+@media (min-width: 64rem) {
+  .about {
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: var(--s-16);
+  }
+}
+
+/* ---- Featured work ----------------------------------------- */
+.featured__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-bottom: var(--s-8);
+}
+
+/* Each featured project gets a full-width row. A 2-up grid would either
+   shrink them or leave a hole on an odd count. */
+.featured__grid { display: grid; gap: var(--s-4); }
+
+@media (min-width: 48rem) {
+  .featured__grid { gap: var(--s-6); }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "personal-portfolio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/emit-routes.mjs",
+    "preview": "vite preview",
+    "check:content": "node scripts/check-content.mjs",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "check:seam": "node scripts/check-seam.mjs",
+    "check": "npm run check:content && npm run check:contrast && npm run check:seam && npm run build",
+    "resume:decrypt": "node scripts/resume.mjs decrypt",
+    "resume:encrypt": "node scripts/resume.mjs encrypt"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.2.1",
+    "vite": "^8.3.6"
+  }
+}

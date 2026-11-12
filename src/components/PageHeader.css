@@ -1,0 +1,17 @@
+.page-head {
+  padding-block: var(--s-12) var(--s-8);
+  border-bottom: 1px solid var(--line);
+}
+
+.page-head__inner > * + * { margin-top: var(--s-4); }
+
+.page-head__lede {
+  max-width: 56ch;
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+@media (min-width: 48rem) {
+  .page-head { padding-block: var(--s-16) var(--s-12); }
+}

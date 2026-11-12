@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # The plaintext résumé is gitignored, so the build has to unseal it.
+      # Without this, check:content correctly reports a missing résumé.
+      - name: Decrypt the résumé
+        env:
+          RESUME_KEY: ${{ secrets.RESUME_KEY }}
+        run: npm run resume:decrypt
+
+      # content guard -> contrast + token roles -> Phase 2 seam -> build.
+      # The content guard runs first on purpose: it is the cheapest check and
+      # it catches the defect that matters most, a placeholder reaching a
+      # recruiter.
+      - name: Run checks
+        run: npm run check
+
+  deploy:
+    name: Deploy to Pages
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    # Never cancel a half-finished deploy; let it land, then run the next one.
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Decrypt the résumé
+        env:
+          RESUME_KEY: ${{ secrets.RESUME_KEY }}
+        run: npm run resume:decrypt
+
+      # Emits a real index.html per route as well as 404.html, so deep links
+      # answer 200 instead of the 404 a bare SPA fallback would give them.
+      - name: Build
+        run: npm run build
+
+      - name: Fail if the résumé did not ship
+        run: |
+          test -s dist/Jonah-Escobar.pdf
+          head -c 4 dist/Jonah-Escobar.pdf | grep -q '%PDF'
+          echo "résumé present and is a real PDF"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - uses: actions/deploy-pages@v4
+        id: deployment

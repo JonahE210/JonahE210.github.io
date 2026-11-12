@@ -1,0 +1,126 @@
+.card {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-6);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition:
+    transform var(--dur-exit) var(--ease-out),
+    background-color var(--dur-exit) var(--ease-out),
+    border-color var(--dur-exit) var(--ease-out);
+}
+
+/* ---- Numbered label ----
+   "01 — CONSTRAINT SOLVER". The number is the accent's job; the category
+   stays grey so the accent is a marker, not a highlighter. */
+.card__index {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+.card__num { color: var(--accent); }
+.card__dash { color: var(--text-3); }
+
+.card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+
+.card__title {
+  min-width: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-md);
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* The whole card is the link target; the heading carries the accessible name
+   and this overlay catches the click, so nested links still work. */
+.card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+.card__link:focus-visible { outline: none; }
+.card:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ---- Corner arrow ----
+   Always present so the card reads as a link at rest, and brightens on hover
+   rather than appearing from nothing. */
+.card__arrow {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--line);
+  color: var(--text-3);
+  transition:
+    transform var(--dur-exit) var(--ease-out),
+    color var(--dur-exit) var(--ease-out),
+    background-color var(--dur-exit) var(--ease-out);
+}
+
+.card__tagline {
+  color: var(--text-2);
+  flex: 1;
+}
+
+.card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-top: auto;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: translateY(-3px);
+    background: var(--surface-2);
+    border-color: var(--line-strong);
+    transition-duration: var(--dur-mid);
+  }
+  .card:hover .card__arrow {
+    transform: translate(2px, -2px);
+    color: var(--bg);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+}
+
+/* A card is a big surface, so the press scale stays very slight — 0.97 on
+   something this size reads as the whole page flinching. */
+.card:active { transform: translateY(-1px) scale(0.995); }
+
+/* ---- Featured ----
+   The flagship gets more room and a larger title. The column span lives on
+   the grid cell in the page stylesheet, not here, because Reveal wraps the
+   card and the wrapper is the actual grid item. */
+@media (min-width: 48rem) {
+  .card--featured { padding: var(--s-8); }
+  .card--featured .card__title { font-size: var(--text-lg); }
+  .card--featured .card__tagline { font-size: var(--text-md); max-width: 54ch; }
+}

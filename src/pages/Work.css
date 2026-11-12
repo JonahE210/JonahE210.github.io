@@ -1,0 +1,15 @@
+/* Asymmetric on purpose: the flagship gets a full-width cell and the rest
+   sit two-up beside each other. A uniform grid would flatten the difference
+   between a project worth reading about and a weekend one. */
+.work__grid {
+  display: grid;
+  gap: var(--s-4);
+}
+
+@media (min-width: 48rem) {
+  .work__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-6);
+  }
+  .work__cell--wide { grid-column: span 2; }
+}

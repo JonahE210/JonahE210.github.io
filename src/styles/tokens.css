@@ -1,0 +1,170 @@
+/* ============================================================
+   Design tokens — the single source of truth.
+
+   The site is light: a warm off-white page, near-black warm
+   grey type, and one burnt-orange accent. Hierarchy still comes
+   from type weight, size and surface lightness rather than hue,
+   so the greys below are doing the work colour usually does and
+   the gaps between them are deliberate.
+
+   Note the scale runs the opposite way from a dark theme: here
+   a raised surface gets *lighter* toward white, and a pressed
+   one gets darker. That also inverts which pair is worst-case —
+   dark type is hardest to read on the darkest surface, not the
+   lightest — which is why --surface-3 is checked too.
+
+   Every pair is verified by scripts/check-contrast.mjs, which
+   reads this file. Run `npm run check:contrast` after any
+   colour change.
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* ---- Surfaces (page, then raised toward white) ------------ */
+  --bg: #f7f4ef;         /* the page — warm off-white */
+  --surface: #ffffff;    /* cards, raised panels */
+  --surface-2: #f1ece4;  /* hover / nested surfaces */
+  --surface-3: #e6dfd4;  /* pressed, active pill */
+
+  /* ---- Lines -------------------------------------------------
+     --line is decorative and allowed to be faint. --line-strong
+     is for borders that carry meaning and clears 3:1 (WCAG 1.4.11)
+     against both the page and a white card. */
+  --line: #e3dcd1;        /* hairline                       1.24:1 */
+  --line-strong: #8c847a; /* meaningful border              3.36:1 */
+
+  /* ---- Text --------------------------------------------------
+     Three steps, far enough apart to read as a hierarchy. */
+  --text: #1f1d1a;        /* primary                       15.33:1 */
+  --text-2: #55504a;      /* secondary                      7.27:1 */
+  --text-3: #6b6459;      /* metadata, captions             5.33:1 */
+
+  /* Deeper than --text, and only ever a fill: the primary button
+     rests at --text and deepens to this on hover. In a dark theme
+     the loudest move was toward white; on a light page it is
+     toward black, so the same idea points the other way. */
+  --text-deep: #0e0d0b;
+
+  /* ---- The one accent ----------------------------------------
+     A burnt orange, used perhaps five times a page: the
+     availability dot, project numbers, focus rings, the active
+     nav indicator. If it starts appearing anywhere else, that is
+     the signal it has stopped meaning anything. */
+  --accent: #b4470f;      /* on bg                          4.97:1 */
+  --accent-dim: #fbeadf;  /* tinted fill behind the accent         */
+
+  /* ---- The brain -------------------------------------------
+     One region of the site runs inverted: a dark inset on the
+     warm page, like a map read at night. Composed rather than
+     mechanically flipped — the ink is a cool near-black so the
+     three cluster hues sit on it evenly, and secondary text is
+     tinted from that surface rather than left neutral grey.
+
+     The three cluster colours are a category encoding, which is
+     the one job that earns more than the single site accent.
+     Their lightness is deliberately spread (L 0.34 / 0.44 /
+     0.61) so the groups stay distinct in greyscale and for
+     colour-blind viewers — position and a labelled hub carry
+     the same information without colour at all. */
+  --brain-bg: #17151b;      /* inset, 16.51:1 against the page */
+  --brain-text: #ede9f2;    /* node label            15.13:1    */
+  --brain-text-2: #aba3b8;  /* dimmed label, hint     7.47:1    */
+  --brain-line: #6e6880;    /* ordinary edge          3.41:1    */
+
+  --c-internships: #f0a133; /* amber                  8.50:1    */
+  --c-projects: #72ddeb;    /* cyan                  11.43:1    */
+  --c-usc: #a98cf2;         /* violet                 6.66:1    */
+  --c-cross: #f3ebe0;       /* cross-group edge      15.33:1    */
+
+  /* The same three hues, dropped in lightness for the detail panel, which
+     sits on the page rather than inside the inset. The bright versions
+     measure 1.4–2.5:1 on off-white — a colour that works on near-black is
+     not a colour, it is a colour plus a surface. Ratios below are against
+     the page; each clears 5.8:1 on a white card. */
+  --c-internships-ink: #90581a; /* on the page            5.32:1 */
+  --c-projects-ink: #1a6e79;    /* on the page            5.39:1 */
+  --c-usc-ink: #6245b4;         /* on the page            6.32:1 */
+
+  /* ---- Type ------------------------------------------------- */
+  /* Display is a grotesque with width and optical-size axes as well as weight;
+     body is a serif, because the project write-ups are the thing worth reading
+     and a serif says "read this" where a UI sans says "scan this". Mono is
+     kept strictly for labels, metadata and measurement.
+
+     --font-display must stay a variable face with a wght axis: KineticName
+     interpolates it per letter every frame. */
+  --font-display: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Newsreader', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --text-2xs: 0.75rem;   /* 12 — mono labels only */
+  --text-xs: 0.875rem;   /* 14 */
+  --text-sm: 1rem;       /* 16 — UI floor (buttons, controls) */
+  --text-body: 1.0625rem;/* 17 — prose. Newsreader sits smaller than a sans at the same px. */
+  --text-md: 1.25rem;    /* 20 */
+  --text-lg: 1.75rem;    /* 28 */
+  --text-xl: 2.5rem;     /* 40 */
+  --text-2xl: 4rem;      /* 64 */
+
+  --leading-tight: 1.05;
+  --leading-snug: 1.25;
+  --leading-body: 1.65;  /* a touch more air: serif, long measure */
+  /* 58, not the 68 this was: `ch` is the width of "0", and Newsreader's
+     figures run wide relative to its lowercase, so 68ch measured 76 characters
+     on the page. Measured, not assumed — 58ch lands at ~70. */
+  --measure: 58ch;
+
+  /* ---- Space (4/8) ------------------------------------------ */
+  --s-1: 0.25rem;  --s-2: 0.5rem;  --s-3: 0.75rem; --s-4: 1rem;
+  --s-6: 1.5rem;   --s-8: 2rem;    --s-12: 3rem;   --s-16: 4rem;
+  --s-24: 6rem;    --s-32: 8rem;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-full: 999px;
+
+  --page-max: 72rem;
+  /* max() with env() keeps content clear of a notch or rounded corner in
+     landscape, without shrinking the gutter anywhere else. */
+  --gutter: max(var(--s-6), env(safe-area-inset-left), env(safe-area-inset-right));
+
+  /* ---- Motion ----------------------------------------------- */
+  --dur-fast: 150ms;
+  --dur-mid: 250ms;
+  --dur-slow: 400ms;
+  --dur-exit: 160ms;   /* ~65% of enter, so leaving feels responsive */
+  --dur-reveal: 320ms; /* scroll entrances */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.64, 0, 0.78, 0);
+  --stagger: 40ms;
+
+  /* ---- Elevation ---------------------------------------------
+     Shadows read clearly on off-white, so they carry real depth
+     here rather than the near-invisible role they had on black —
+     but they are tinted with the page's warm ink instead of pure
+     black, which on a warm ground reads as grime. Each keeps an
+     offset and a soft blur; a zero-offset halo is decoration. */
+  --shadow-1: 0 1px 2px rgb(31 29 26 / 0.06);
+  --shadow-2: 0 8px 24px -6px rgb(31 29 26 / 0.12);
+  --shadow-3: 0 20px 48px -12px rgb(31 29 26 / 0.16);
+
+  /* ---- Layers ----------------------------------------------- */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-rail: 30;
+  --z-nav: 40;
+  --z-skip: 100;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --gutter: max(var(--s-8), env(safe-area-inset-left), env(safe-area-inset-right));
+  }
+}
+@media (min-width: 64rem) {
+  :root {
+    --gutter: max(var(--s-12), env(safe-area-inset-left), env(safe-area-inset-right));
+  }
+}

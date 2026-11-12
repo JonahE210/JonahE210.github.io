@@ -1,0 +1,425 @@
+/* ============================================================
+   The brain.
+
+   Edges are SVG, nodes are buttons. The simulation writes only
+   `transform` on the nodes and x/y on the lines, so a frame
+   costs no layout.
+   ============================================================ */
+
+.brain {
+  display: grid;
+  gap: var(--s-6);
+}
+
+/* ---- Stage ---- */
+.brain__stage {
+  position: relative;
+  border: 1px solid var(--brain-bg);
+  border-radius: var(--radius-lg);
+  /* One region of the site reads at night. The two washes are the three
+     cluster hues bleeding up out of their own corners, which gives the ink
+     somewhere to come from instead of being flat black. */
+  background:
+    radial-gradient(
+      ellipse 50% 60% at 22% 30%,
+      color-mix(in srgb, var(--c-internships) 9%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 48% 58% at 80% 28%,
+      color-mix(in srgb, var(--c-usc) 10%, transparent),
+      transparent 66%
+    ),
+    radial-gradient(
+      ellipse 56% 62% at 50% 78%,
+      color-mix(in srgb, var(--c-projects) 10%, transparent),
+      transparent 68%
+    ),
+    var(--brain-bg);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+
+/* Each cluster names its own hue once; everything inside reads var(--c). */
+.brain__node--internships,
+.brain__edge--internships,
+.brain__group--internships { --c: var(--c-internships); }
+.brain__node--projects,
+.brain__edge--projects,
+.brain__group--projects { --c: var(--c-projects); }
+.brain__node--usc,
+.brain__edge--usc,
+.brain__group--usc { --c: var(--c-usc); }
+
+/* The panel sits on the page, so it reads the ink set instead. */
+.brain__card--internships { --c-ink: var(--c-internships-ink); }
+.brain__card--projects { --c-ink: var(--c-projects-ink); }
+.brain__card--usc { --c-ink: var(--c-usc-ink); }
+
+.brain__edges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.brain__edge {
+  stroke: var(--c, var(--brain-line));
+  stroke-width: 1.25;
+  opacity: 0.5;
+  transition:
+    opacity var(--dur-mid) var(--ease-out),
+    stroke-width var(--dur-mid) var(--ease-out);
+}
+
+/* The three cross-cluster links are the point of the graph, so they are the
+   one place the accent appears here. */
+/* The three cross-group links are the point of the graph, so they are the
+   one thing in here that moves on its own: the dash travels from source to
+   target, which is the direction the connection actually runs. */
+.brain__edge--cross {
+  stroke: var(--c-cross);
+  stroke-width: 1.25;
+  opacity: 0.4;
+  stroke-dasharray: 2 7;
+  stroke-linecap: round;
+}
+.brain__stage.is-live .brain__edge--cross {
+  animation: brain-flow 2.4s linear infinite;
+}
+@keyframes brain-flow {
+  to { stroke-dashoffset: -18; }
+}
+
+.brain__edge.is-lit { opacity: 1; stroke-width: 1.75; }
+.brain__edge.is-dim { opacity: 0.1; }
+
+/* ---- Nodes ---- */
+.brain__node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2);
+  border-radius: var(--radius-md);
+  color: var(--brain-text-2);
+  text-align: center;
+  /* Opacity and colour only — `transform` belongs to the simulation, and a
+     transition on it would fight the integrator every frame. */
+  transition:
+    opacity var(--dur-mid) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+/* The assembly. Each node flies from the centre of the stage out to the
+   position the solver gave it — a `from`-only keyframe, so the element's own
+   transform remains the definition of where it ends up. Nothing is hidden
+   before this runs; the graph is simply already correct and then animates
+   into itself. */
+@keyframes brain-in {
+  from {
+    opacity: 0;
+    transform: translate(calc(var(--cx) - 50%), calc(var(--cy) - 50%)) scale(0.6);
+  }
+}
+
+.brain__stage.is-entered .brain__node {
+  animation: brain-in 720ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 42ms);
+}
+
+/* Edges draw in behind the nodes rather than snapping on. */
+.brain__stage.is-entered .brain__edges {
+  animation: brain-edges 900ms var(--ease-out) backwards;
+  animation-delay: 220ms;
+}
+@keyframes brain-edges {
+  from { opacity: 0; }
+}
+
+.brain__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: var(--radius-full);
+  background: var(--c, var(--brain-line));
+  /* Luminosity, not depth: on a dark ground a node reads as a light source,
+     and the glow is how far its light carries. It is also what breathes. */
+  box-shadow: 0 0 10px -1px var(--c, var(--brain-line));
+  transition:
+    box-shadow var(--dur-mid) var(--ease-out),
+    scale var(--dur-fast) var(--ease-out);
+}
+
+/* Breathing happens on the glow, never on position: the edges are drawn to
+   each node's solved centre, so a node that drifted would visibly pull away
+   from its own links. Staggered durations keep the twelve out of lockstep. */
+.brain__stage.is-live .brain__dot {
+  animation: brain-breathe calc(4200ms + var(--i, 0) * 290ms) ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -510ms);
+}
+@keyframes brain-breathe {
+  0%, 100% { box-shadow: 0 0 9px -2px var(--c, var(--brain-line)); }
+  50% { box-shadow: 0 0 16px 1px var(--c, var(--brain-line)); }
+}
+
+.brain__label {
+  color: var(--brain-text);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Hubs are the three cluster centres: bigger mark, label in the metadata
+   voice so they read as categories rather than as more entries. */
+.brain__node--hub .brain__dot {
+  width: 18px;
+  height: 18px;
+  box-shadow: 0 0 20px -2px var(--c);
+}
+.brain__node--hub .brain__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  /* The hub is the one place a cluster's hue is also its name. */
+  color: var(--c);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .brain__node:hover .brain__label { color: var(--brain-text); }
+  .brain__node:hover .brain__dot { scale: 1.3; }
+}
+
+.brain__node.is-dim { opacity: 0.22; }
+
+.brain__node.is-selected .brain__label { color: var(--brain-text); }
+.brain__node.is-selected .brain__dot {
+  scale: 1.35;
+  animation: none;
+  box-shadow: 0 0 22px 2px var(--c);
+}
+
+/* A ring that expands once on selection — an outline, which is what a ring
+   is, rather than a zero-offset shadow pretending to be depth. */
+.brain__node.is-selected .brain__dot::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: var(--radius-full);
+  outline: 1px solid var(--c);
+  opacity: 0.55;
+  animation: brain-ring var(--dur-slow) var(--ease-out);
+}
+.brain__dot { position: relative; }
+@keyframes brain-ring {
+  from { inset: -1px; opacity: 0; }
+}
+
+/* ---- Legend ----
+   Inside the inset, because the colour it names only exists in here. */
+.brain__legend {
+  position: absolute;
+  right: var(--s-6);
+  bottom: var(--s-4);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brain-text-2);
+  pointer-events: none;
+}
+.brain__legend-key {
+  width: 30px;
+  height: 1.25px;
+  border-radius: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--c-cross) 0 2px,
+    transparent 2px 9px
+  );
+}
+.brain__stage.is-live .brain__legend-key {
+  animation: brain-legend 2.4s linear infinite;
+}
+@keyframes brain-legend {
+  to { background-position-x: 9px; }
+}
+
+/* ---- Panel ---- */
+.brain__panel {
+  min-height: 7.5rem;
+  padding-top: var(--s-2);
+}
+
+@media (min-width: 48rem) {
+  .brain__panel { min-height: 6.5rem; }
+}
+
+.brain__hint {
+  color: var(--text-3);
+  font-size: var(--text-xs);
+  max-width: 28ch;
+}
+
+.brain__card {
+  display: grid;
+  gap: var(--s-3);
+  align-items: start;
+}
+
+@media (min-width: 48rem) {
+  /* Reading column beside the facts, so the panel stays short and the graph
+     above it does not get pushed up the page. */
+  .brain__card {
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    column-gap: var(--s-8);
+  }
+  .brain__card > .meta { grid-column: 1; }
+  .brain__title { grid-column: 1; }
+  .brain__meta { grid-column: 1; }
+  .brain__text { grid-column: 2; grid-row: 1 / 4; max-width: 60ch; }
+  .brain__link-note { grid-column: 2; }
+  .brain__open { grid-column: 1; }
+}
+
+/* The cluster name is the one word tying the panel back to the node you
+   just lit up, so it carries that cluster's colour. */
+.brain__card > .meta { color: var(--c-ink, var(--text-3)); }
+
+.brain__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-md);
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.brain__meta {
+  font-size: var(--text-xs);
+  color: var(--text-3);
+}
+
+.brain__text {
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+/* A connection worth naming gets its own block, because the note is the
+   reason the edge exists. */
+.brain__link-note {
+  padding-left: var(--s-3);
+  border-left: 1px solid var(--c-ink, var(--accent));
+  font-size: var(--text-xs);
+  line-height: 1.55;
+  color: var(--text-2);
+}
+.brain__link-note .meta { display: block; margin-bottom: var(--s-1); }
+
+.brain__open { width: fit-content; }
+
+/* ---- Browser surfaces on the inset -------------------------
+   The page's focus ring is the burnt-orange accent, which measures 2.11:1
+   against this ink — under the 3:1 a focus indicator owes. Selection would
+   be near-black on near-black. Neither is something the component draws, and
+   both would have shipped broken. */
+.brain__stage :focus-visible,
+.brain__list :focus-visible {
+  outline-color: var(--brain-text);
+}
+.brain__stage ::selection,
+.brain__list ::selection {
+  background: var(--brain-text);
+  color: var(--brain-bg);
+}
+
+/* ---- Narrow-screen list ----
+   The brain is dark on every viewport, so the fallback is the same surface
+   rather than a pale cousin of it. */
+.brain__list {
+  display: grid;
+  gap: var(--s-8);
+  padding: var(--s-6) var(--s-4);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(
+      ellipse 90% 40% at 50% 0%,
+      color-mix(in srgb, var(--c-projects) 8%, transparent),
+      transparent 70%
+    ),
+    var(--brain-bg);
+  box-shadow: var(--shadow-2);
+}
+.brain__group > * + * { margin-top: var(--s-3); }
+.brain__group-title { color: var(--c); }
+.brain__list .brain__text { color: var(--brain-text-2); }
+.brain__list .link {
+  color: var(--brain-text);
+  text-decoration-color: var(--brain-line);
+}
+
+.brain__item {
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--brain-line);
+}
+.brain__item > * + * { margin-top: var(--s-3); }
+
+.brain__item summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-1) var(--s-3);
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+  list-style: none;
+}
+.brain__item summary::-webkit-details-marker { display: none; }
+
+/* A drawn mark, not a glyph: two rules that cross, and the upright one fades
+   out as the row opens so the plus becomes a minus. */
+.brain__mark {
+  position: relative;
+  flex: none;
+  width: 11px;
+  height: 11px;
+  align-self: center;
+}
+.brain__mark::before,
+.brain__mark::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--c);
+  translate: 0 -50%;
+  transition:
+    rotate var(--dur-mid) var(--ease-out),
+    opacity var(--dur-mid) var(--ease-out);
+}
+.brain__mark::after { rotate: 90deg; }
+.brain__item[open] .brain__mark::after { rotate: 0deg; opacity: 0; }
+
+.brain__item-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-md);
+  color: var(--brain-text);
+}
+.brain__item-meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brain-text-2);
+}

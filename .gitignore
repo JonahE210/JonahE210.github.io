@@ -1,0 +1,18 @@
+node_modules
+dist
+.DS_Store
+*.local
+
+# The résumé carries a phone number, so it stays out of public git history.
+# The encrypted copy in secure/ is what ships; see README > Résumé.
+public/Jonah-Escobar.pdf
+.resume-key.local
+
+# Local AI/editor tooling. Not the project: a vendored third-party skill plus
+# machine-local hook and permission config. Keeping it out makes the public
+# repo the portfolio rather than a dump of a dev environment.
+.claude/
+.agents/
+.codex/
+.cursor/
+.impeccable/

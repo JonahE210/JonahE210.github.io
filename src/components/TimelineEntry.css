@@ -1,0 +1,101 @@
+.timeline {
+  /* The date column width and the spine's offset have to agree. They were two
+     separate literals; one value means they cannot drift apart. */
+  --date-col: 8rem;
+  position: relative;
+  display: grid;
+  gap: var(--s-8);
+}
+
+/* The spine. Sits behind the markers, inset to line up with their centres. */
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 5px;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--line-strong),
+    var(--line-strong) 72%,
+    transparent
+  );
+}
+
+.entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--s-4);
+  align-items: start;
+}
+
+/* Narrow screens: two tracks (marker, body). The date column is taken out of
+   the grid entirely and the inline copy above the title carries it instead. */
+.entry__date-col { display: none; }
+
+.entry__marker {
+  position: relative;
+  z-index: 1;
+  width: 12px;
+  height: 12px;
+  margin-top: 5px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--line-strong);
+  background: var(--bg);
+  flex: none;
+}
+
+/* Milestones read as filled. The shape and the ring differ too, so the
+   distinction does not depend on colour alone. */
+/* Milestones read as filled, with a halo. Fill and ring both differ, so the
+   distinction survives with colour stripped out. */
+.entry--milestone .entry__marker {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.entry__body > * + * { margin-top: var(--s-2); }
+
+.entry__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2) var(--s-4);
+}
+
+.entry__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-md);
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.entry__text {
+  max-width: var(--measure);
+  color: var(--text-2);
+}
+
+.entry__tag {
+  display: inline-flex;
+  padding: 2px var(--s-2);
+  border-radius: var(--radius-sm);
+  background: var(--surface-3);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.04em;
+}
+
+@media (min-width: 48rem) {
+  .timeline { gap: var(--s-12); }
+  .entry { grid-template-columns: var(--date-col) auto minmax(0, 1fr); gap: var(--s-6); }
+  /* Dates move out into their own column once there is room for them. */
+  .entry__date-col { display: block; text-align: right; padding-top: 2px; white-space: nowrap; }
+  .entry__date-inline { display: none; }
+  .timeline::before { left: calc(var(--date-col) + var(--s-6) + 5px); }
+}

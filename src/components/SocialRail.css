@@ -1,0 +1,48 @@
+/* A fixed column of icon links on the left edge, from the reference.
+
+   Hidden below 64rem: there is no room for it beside the content on a narrow
+   screen, and the same links are in the footer, so nothing is lost. */
+.rail {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .rail {
+    position: fixed;
+    left: var(--s-6);
+    top: 50%;
+    translate: 0 -50%;
+    z-index: var(--z-rail);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+    padding: var(--s-2);
+    background: color-mix(in srgb, var(--surface) 86%, transparent);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    backdrop-filter: blur(16px);
+  }
+}
+
+.rail__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 44px even though the icon is 20px — the padding is the tap target. */
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  color: var(--text-3);
+  transition:
+    color var(--dur-exit) var(--ease-out),
+    background-color var(--dur-exit) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rail__link:hover {
+    color: var(--text);
+    background: var(--surface-3);
+    transition-duration: var(--dur-fast);
+  }
+}
+.rail__link:active { transform: scale(0.92); }

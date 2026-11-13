@@ -25,6 +25,25 @@ committed is `secure/Jonah-Escobar.pdf.enc`, an AES-256 container.
 A fresh clone has no résumé until you decrypt, and `npm run check` will say so
 rather than building a site whose biggest button 404s.
 
+## Favicon
+
+The JE monogram is **drawn, not set** — generated geometry rather than a glyph
+from whatever font is installed. `scripts/monogram.mjs` simulates a broad nib:
+a centreline plus a nib angle, where stroke width follows the angle between
+the tangent and the nib, which is where calligraphic thick/thin actually comes
+from.
+
+```bash
+npm run monogram                      # -> public/favicon.svg
+PLAYWRIGHT=<path> node scripts/monogram-png.mjs   # -> the PNG fallbacks
+```
+
+Two constraints shaped it, and both killed earlier attempts: at 16px a grid
+unit is half a pixel, so every stroke needs a hard minimum width and true
+hairline-against-stem contrast simply cannot render; and a chisel terminal is
+either a pen lift or a flat edge at the nib angle, never both — applying a cap
+width on top of a taper makes the outline spike.
+
 ## Deploys
 
 Pushing to `main` runs `.github/workflows/ci.yml`:

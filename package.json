@@ -12,7 +12,8 @@
     "check:seam": "node scripts/check-seam.mjs",
     "check": "npm run check:content && npm run check:contrast && npm run check:seam && npm run build",
     "resume:decrypt": "node scripts/resume.mjs decrypt",
-    "resume:encrypt": "node scripts/resume.mjs encrypt"
+    "resume:encrypt": "node scripts/resume.mjs encrypt",
+    "monogram": "node scripts/monogram.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",
